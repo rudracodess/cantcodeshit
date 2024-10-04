@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings Goal Tracker</title>
+    <style>
+        :root {
+            --background-color: #f4f4f4;
+            --text-color: #000;
+            --container-background: #fff;
+            --goal-background: #e9ecef;
+            --progress-bar-background: #ddd;
+            --progress-fill-background: #28a745;
+            --button-background: #28a745;
+            --button-hover-background: #218838;
+            --card-background: #fff;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --background-color: #121212;
+            --text-color: #ffffff;
+            --container-background: #1e1e1e;
+            --goal-background: #333;
+            --progress-bar-background: #555;
+            --progress-fill-background: #76c7c0;
+            --button-background: #76c7c0;
+            --button-hover-background: #5aa6a3;
+            --card-background: #1e1e1e;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: var(--container-background);
+            box-shadow: var(--card-shadow);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+        }
+
+        input,
+        select {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 120px;
+            height: 40px;
+            font-size: 16px;
+            background: var(--button-background);
+            color: var(--text-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--button-hover-background);
+        }
+
+        #goals-list {
+            margin-top: 20px;
+        }
+
+        .goal {
+            background: var(--goal-background);
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .goal h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .goal p {
+            margin: 5px 0;
+        }
+
+        .progress-bar {
+            background: var(--progress-bar-background);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .progress-fill {
+            background: var(--progress-fill-background);
+            height: 20px;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--container-background);
+            box-shadow: var(--card-shadow);
+        }
+
+        .nav-buttons,
+        .auth-buttons,
+        .dark-mode-toggle {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-buttons button,
+        .nav-buttons .dropdown,
+        .auth-buttons button {
+            margin-left: 10px;
+            background-color: #00bcd4;
+            /* Cyan color */
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-buttons button:hover,
+        .nav-buttons .dropdown:hover,
+        .auth-buttons button:hover {
+            background-color: #fff;
+            color: #00bcd4;
+            /* Cyan color */
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 50px;
+            flex-direction: column;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: flex;
+        }
+
+        .dark-mode-toggle label {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #00bcd4;
+            /* Cyan color */
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-nav">
+        <div class="nav-buttons">
+            <button id="news">News</button>
+            <button id="android">Android</button>
+            <button id="ios">iOS</button>
+            <button id="forum">Forum</button>
+            <div class="dropdown">
+                <button id="support">Support</button>
+                <div class="dropdown-content">
+                    <a href="#">Report a Bug</a>
+                    <a href="#">Feature Request</a>
+                    <a href="#">Credentials</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button id="about">About</button>
+                <div class="dropdown-content">
+                    <a href="#">License</a>
+                    <a href="#">Privacy</a>
+                </div>
+            </div>
+        </div>
+        <div class="dark-mode-toggle">
+            <label class="switch">
+                <input type="checkbox" id="dark-mode-toggle" checked>
+                <span class="slider"></span>
+            </label>
+            <label for="dark-mode-toggle">Dark Mode</label>
+        </div>
+        <div class="auth-buttons">
+            <button id="sign-up">Sign Up</button>
+            <button id="sign-in">Sign In</button>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Savings Goal Tracker</h1>
+        <form id="goal-form">
+            <input type="text" id="goal-name" placeholder="Financial Goal Name" required>
+            <input type="number" id="target-amount" placeholder="Total Savings Target Amount" required>
+            <input type="number" id="monthly-savings" placeholder="Monthly Savings Target Amount" required>
+            <select id="goal-category">
+                <option value="vacation">Vacation</option>
+                <option value="emergency">Emergency Fund</option>
+                <option value="big-purchase">Big Purchase</option>
+                <option value="surprise">Surprise</option>
+                <option value="festivals">Festival</option>
+            </select>
+            <select id="currency">
+                <option value="USD">$ (USD)</option>
+                <option value="EUR">€ (EUR)</option>
+                <option value="GBP">£ (GBP)</option>
+                <option value="JPY">¥ (JPY)</option>
+                <option value="INR" selected>₹ (INR)</option>
+                <option value="AUD">$ (AUD)</option>
+                <option value="CAD">$ (CAD)</option>
+                <option value="CNY">¥ (CNY)</option>
+                <option value="NZD">$ (NZD)</option>
+                <option value="SGD">$ (SGD)</option>
+            </select>
+            <button type="submit">Add Goal</button>
+        </form>
+        <div id="goals-list"></div>
+    </div>
+    <script>
+        let goals = [];
+
+        document.getElementById('goal-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const goalName = document.getElementById('goal-name').value;
+            const targetAmount = document.getElementById('target-amount').value;
+            const monthlySavings = document.getElementById('monthly-savings').value;
+            const goalCategory = document.getElementById('goal-category').value;
+            const currency = document.getElementById('currency').value;
+
+            addGoal(goalName, targetAmount, monthlySavings, goalCategory, currency);
+
+            document.getElementById('goal-form').reset();
+            document.getElementById('currency').value = 'INR'; // Reset currency to INR
+        });
+
+        function addGoal(name, target, monthly, category, currency) {
+            const goal = {
+                name,
+                target: parseFloat(target),
+                monthly: parseFloat(monthly),
+                currentProgress: 0,
+                history: [],
+                category,
+                currency
+            };
+            goals.push(goal);
+            renderGoals();
+        }
+
+        function renderGoals() {
+            const goalsList = document.getElementById('goals-list');
+            goalsList.innerHTML = '';
+
+            goals.forEach((goal, index) => {
+                const goalDiv = document.createElement('div');
+                goalDiv.classList.add('goal');
+
+                const goalTitle = document.createElement('h3');
+                goalTitle.textContent = goal.name;
+
+                const goalTarget = document.createElement('p');
+                goalTarget.textContent = `Target Amount: ${goal.currency}${goal.target}`;
+
+                const goalMonthly = document.createElement('p');
+                goalMonthly.textContent = `Monthly Savings Target: ${goal.currency}${goal.monthly}`;
+
+                const goalCategory = document.createElement('p');
+                goalCategory.textContent = `Category: ${goal.category}`;
+
+                const progress = document.createElement('p');
+                const progressPercentage = (goal.currentProgress / goal.target) * 100;
+                progress.textContent = `Progress: ${goal.currency}${goal.currentProgress} / ${goal.currency}${goal.target} (${progressPercentage.toFixed(2)}%)`;
+
+                const progressBar = document.createElement('div');
+                progressBar.classList.add('progress-bar');
+
+                const progressFill = document.createElement('div');
+                progressFill.classList.add('progress-fill');
+                progressFill.style.width = `${progressPercentage}%`;
+
+                progressBar.appendChild(progressFill);
+
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.style.marginRight = '10px';
+                editButton.addEventListener('click', () => editGoal(index));
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => deleteGoal(index));
+
+                const buttonContainer = document.createElement('div');
+                buttonContainer.style.marginTop = '10px';
+                buttonContainer.appendChild(editButton);
+                buttonContainer.appendChild(deleteButton);
+
+                const historyButton = document.createElement('button');
+                historyButton.textContent = 'View History';
+                historyButton.style.marginTop = '10px';
+                historyButton.addEventListener('click', () => viewHistory(goal));
+
+                goalDiv.appendChild(goalTitle);
+                goalDiv.appendChild(goalTarget);
+                goalDiv.appendChild(goalMonthly);
+                goalDiv.appendChild(goalCategory);
+                goalDiv.appendChild(progress);
+                goalDiv.appendChild(progressBar);
+                goalDiv.appendChild(buttonContainer);
+                goalDiv.appendChild(historyButton);
+
+                goalsList.appendChild(goalDiv);
+            });
+        }
+
+        function editGoal(index) {
+            const goal = goals[index];
+            const newName = prompt('Enter new goal name:', goal.name);
+            const newTarget = prompt('Enter new target amount:', goal.target);
+            const newMonthly = prompt('Enter new monthly savings target:', goal.monthly);
+            const newCategory = prompt('Enter new category:', goal.category);
+            const newCurrency = prompt('Enter new currency:', goal.currency);
+
+            if (newName && newTarget && newMonthly && newCategory && newCurrency) {
+                goal.name = newName;
+                goal.target = parseFloat(newTarget);
+                goal.monthly = parseFloat(newMonthly);
+                goal.category = newCategory;
+                goal.currency = newCurrency;
+                goal.currentProgress = 0;
+                goal.history = [];
+                renderGoals();
+            }
+        }
+
+        function deleteGoal(index) {
+            goals.splice(index, 1);
+            renderGoals();
+        }
+
+        function viewHistory(goal) {
+            alert(`Savings History for ${goal.name}:\n` + goal.history.join('\n'));
+        }
+
+        function updateProgress() {
+            goals.forEach(goal => {
+                goal.currentProgress += goal.monthly;
+                goal.history.push(`Saved ${goal.currency}${goal.monthly} on ${new Date().toLocaleDateString()}`);
+                if (goal.currentProgress >= goal.target) {
+                    goal.currentProgress = goal.target;
+                    alert(`Congratulations! You've reached your goal: ${goal.name}`);
+                }
+            });
+            renderGoals();
+        }
+
+        // Automatically update progress every month (for demonstration, it's set to every 10 seconds)
+        setInterval(updateProgress, 10000);
+
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        darkModeToggle.addEventListener('change', function () {
+            if (this.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        });
+    </script>
+</body>
+
+</html>
